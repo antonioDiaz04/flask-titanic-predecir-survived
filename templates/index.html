@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Predicción de Supervivencia | Titanic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      body {
+        background: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: url('https://m.media-amazon.com/images/S/pv-target-images/366635d4480c3596c4061be9560a9b116fc787d001fa1ecb433f4006c2e6d2e5.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        min-height: 100vh;
+      }
+      h1, p { color: white; }
+      .form-container {
+        background-color: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 ml-20">
+      <div class="space-y-1">
+        <h1 class="text-7xl font-extrabold mb-4">¿Sobrevivirías en el</h1>
+        <h1 class="text-7xl font-extrabold mb-4">Titanic?</h1>
+        <p class="text-sm">Modelo predictivo de supervivencia de pasajeros</p>
+
+        <div id="predictionResult" class="hidden">
+          <div class="bg-gray-900 text-white p-6 rounded-lg">
+            <p class="text-lg font-light">
+              Predicción de supervivencia: <span id="predictedSurvival" class="font-bold text-green-400"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <h2 class="text-2xl font-light text-black mb-4">Datos del pasajero</h2>
+
+        <form id="titanicForm" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="text-xs text-black">CLASE</label>
+              <select name="pclass" class="w-full border-b bg-transparent pb-2" required>
+                <option value="">Seleccionar</option>
+                <option value="1">Primera</option>
+                <option value="2">Segunda</option>
+                <option value="3">Tercera</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-black">SEXO</label>
+              <select name="sex" class="w-full border-b bg-transparent pb-2" required>
+                <option value="">Seleccionar</option>
+                <option value="male">Masculino</option>
+                <option value="female">Femenino</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="text-xs text-black">EDAD</label>
+              <input type="number" name="age" step="0.1" class="w-full border-b bg-transparent pb-2" required />
+            </div>
+            <div>
+              <label class="text-xs text-black">TARIFA</label>
+              <input type="number" name="fare" step="0.01" class="w-full border-b bg-transparent pb-2" required />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="text-xs text-black">HERMANOS/CÓNYUGE</label>
+              <input type="number" name="sibsp" class="w-full border-b bg-transparent pb-2" required />
+            </div>
+            <div>
+              <label class="text-xs text-black">PADRES/HIJOS</label>
+              <input type="number" name="parch" class="w-full border-b bg-transparent pb-2" required />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="text-xs text-black">PUERTO</label>
+              <select name="embarked" class="w-full border-b bg-transparent pb-2" required>
+                <option value="">Seleccionar</option>
+                <option value="C">Cherbourg</option>
+                <option value="Q">Queenstown</option>
+                <option value="S">Southampton</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-black">NOMBRE COMPLETO</label>
+              <input type="text" name="name" placeholder="Apellido, Título. Nombre" class="w-full border-b bg-transparent pb-2" required />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-black">BOLETO</label>
+            <input type="text" name="ticket" placeholder="A/5 21171" class="w-full border-b bg-transparent pb-2" required />
+          </div>
+
+          <button type="submit" class="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-400">Predecir</button>
+        </form>
+
+        <div id="loadingMessage" class="hidden mt-4 text-sm text-gray-600">Calculando predicción...</div>
+        <div id="errorMessage" class="hidden mt-4 text-sm text-red-600">Error al predecir. Intenta de nuevo.</div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('titanicForm').addEventListener('submit', async function (e) {
+        e.preventDefault()
+
+        const formData = new FormData(this)
+        const data = {
+          pclass: parseInt(formData.get('pclass')),
+          sex: formData.get('sex'),
+          age: parseFloat(formData.get('age')),
+          fare: parseFloat(formData.get('fare')),
+          sibsp: parseInt(formData.get('sibsp')),
+          parch: parseInt(formData.get('parch')),
+          embarked: formData.get('embarked'),
+          name: formData.get('name'),
+          ticket: formData.get('ticket')
+        }
+
+        document.getElementById('loadingMessage').classList.remove('hidden')
+        document.getElementById('predictionResult').classList.add('hidden')
+        document.getElementById('errorMessage').classList.add('hidden')
+
+        try {
+          const response = await fetch('/api/predict-titanic-survival', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          })
+
+          if (response.ok) {
+            const result = await response.json()
+            const predictionText = result.survived === 1 ? 'Sobrevive' : 'No sobrevive'
+            const predictionColor = result.survived === 1 ? 'text-green-400' : 'text-red-400'
+
+            document.getElementById('predictedSurvival').textContent = predictionText
+            document.getElementById('predictedSurvival').className = 'font-bold ' + predictionColor
+            document.getElementById('loadingMessage').classList.add('hidden')
+            document.getElementById('predictionResult').classList.remove('hidden')
+          } else {
+            throw new Error('Error en la respuesta')
+          }
+        } catch (error) {
+          console.error('Error:', error)
+          document.getElementById('loadingMessage').classList.add('hidden')
+          document.getElementById('errorMessage').classList.remove('hidden')
+        }
+      })
+    </script>
+  </body>
+</html>
