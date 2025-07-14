@@ -92,23 +92,13 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="text-xs text-black">PUERTO</label>
-              <select name="embarked" class="w-full border-b bg-transparent pb-2" required>
-                <option value="">Seleccionar</option>
-                <option value="C">Cherbourg</option>
-                <option value="Q">Queenstown</option>
-                <option value="S">Southampton</option>
-              </select>
-            </div>
-            <div>
               <label class="text-xs text-black">NOMBRE COMPLETO</label>
               <input type="text" name="name" placeholder="Apellido, Título. Nombre" class="w-full border-b bg-transparent pb-2" required />
             </div>
-          </div>
-
-          <div>
-            <label class="text-xs text-black">BOLETO</label>
-            <input type="text" name="ticket" placeholder="A/5 21171" class="w-full border-b bg-transparent pb-2" required />
+             <div>
+              <label class="text-xs text-black">BOLETO</label>
+              <input type="text" name="ticket" placeholder="A/5 21171" class="w-full border-b bg-transparent pb-2" required />
+            </div>
           </div>
 
           <button type="submit" class="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-400">Predecir</button>
@@ -131,7 +121,7 @@
           fare: parseFloat(formData.get('fare')),
           sibsp: parseInt(formData.get('sibsp')),
           parch: parseInt(formData.get('parch')),
-          embarked: formData.get('embarked'),
+          // Se ha eliminado 'embarked' de aquí, ya que no se usa en el modelo
           name: formData.get('name'),
           ticket: formData.get('ticket')
         }
