@@ -17,7 +17,10 @@
         background-position: center;
         min-height: 100vh;
       }
-      h1, p { color: white; }
+      h1,
+      p {
+        color: black;
+      }
       .form-container {
         background-color: #f7fafc;
         border: 1px solid #e2e8f0;
@@ -30,10 +33,9 @@
   <body class="flex items-center justify-center p-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 ml-20">
       <div class="space-y-1">
-        <h1 class="text-7xl font-extrabold mb-4">¿Sobrevivirías en el</h1>
-        <h1 class="text-7xl font-extrabold mb-4">Titanic?</h1>
-        <p class="text-sm">Modelo predictivo de supervivencia de pasajeros</p>
-
+        <h1 class="text-7xl font-extrabold mb-4 text-gray-600">Titanic: El Veredicto de la</h1>
+        <h1 class="text-7xl font-extrabold mb-4 text-gray-600">Supervivencia</h1>
+        <p class="text-sm text-gray-300">Modelo predictivo para el análisis del destino de los pasajeros</p>
         <div id="predictionResult" class="hidden">
           <div class="bg-gray-900 text-white p-6 rounded-lg">
             <p class="text-lg font-light">
@@ -94,7 +96,7 @@
               <label class="text-xs text-black">NOMBRE COMPLETO</label>
               <input type="text" name="name" placeholder="Apellido, Título. Nombre" class="w-full border-b bg-transparent pb-2" required />
             </div>
-             <div>
+            <div>
               <label class="text-xs text-black">BOLETO</label>
               <input type="text" name="ticket" placeholder="A/5 21171" class="w-full border-b bg-transparent pb-2" required />
             </div>
@@ -111,7 +113,7 @@
     <script>
       document.getElementById('titanicForm').addEventListener('submit', async function (e) {
         e.preventDefault()
-
+      
         const formData = new FormData(this)
         const data = {
           pclass: parseInt(formData.get('pclass')),
@@ -124,23 +126,23 @@
           name: formData.get('name'),
           ticket: formData.get('ticket')
         }
-
+      
         document.getElementById('loadingMessage').classList.remove('hidden')
         document.getElementById('predictionResult').classList.add('hidden')
         document.getElementById('errorMessage').classList.add('hidden')
-
+      
         try {
           const response = await fetch('/api/predict-titanic-survival', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
           })
-
+      
           if (response.ok) {
             const result = await response.json()
             const predictionText = result.survived === 1 ? 'Sobrevive' : 'No sobrevive'
             const predictionColor = result.survived === 1 ? 'text-green-400' : 'text-red-400'
-
+      
             document.getElementById('predictedSurvival').textContent = predictionText
             document.getElementById('predictedSurvival').className = 'font-bold ' + predictionColor
             document.getElementById('loadingMessage').classList.add('hidden')
